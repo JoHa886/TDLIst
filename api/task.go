@@ -33,3 +33,49 @@ func TaskDetail(c *gin.Context) {
 	}
 
 }
+
+// 任务列表
+func TaskList(c *gin.Context) {
+	var taskList service.TaskListService
+	claim, _ := utils.ParseToken(c.GetHeader("Authorization"))
+	if err := c.ShouldBind(&taskList); err == nil {
+		res := taskList.List(claim.Id)
+		c.JSON(200, res)
+	} else {
+		logging.Error(err)
+		c.JSON(400, err)
+	}
+
+}
+
+// 删除任务
+func DeleteTask(c *gin.Context) {
+	deleteTaskService := service.DeleteTaskService{}
+	res := deleteTaskService.Delete(c.Param("id"))
+	c.JSON(200, res)
+}
+
+// 修改任务
+func UpdateTask(c *gin.Context) {
+	updateTaskService := service.UpdateTaskService{}
+	if err := c.ShouldBind(&updateTaskService); err == nil {
+		res := updateTaskService.Update(c.Param("id"))
+		c.JSON(200, res)
+	} else {
+		c.JSON(200, err)
+		logging.Info(err)
+	}
+}
+
+// 查询任务
+func SearchTasks(c *gin.Context) {
+	searchTaskService := service.SearchTaskService{}
+	claim, _ := utils.ParseToken(c.GetHeader("Authorization"))
+	if err := c.ShouldBind(&searchTaskService); err == nil {
+		res := searchTaskService.Search(claim.Id)
+		c.JSON(200, res)
+	} else {
+		c.JSON(200, err)
+		logging.Info(err)
+	}
+}
